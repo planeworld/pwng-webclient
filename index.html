@@ -29,14 +29,16 @@
   <div id="app">
     <i class="ri-cloud-line" v-show="server.connected"></i>
     <i class="ri-cloud-off-line" v-show="!server.connected"></i>
-
-    <button v-on:click="rpc('start_simulation')" v-show="!sim_running">Start Simulation</button>
-    <button v-on:click="rpc('stop_simulation')" v-show="sim_running">Stop Simulation</button>
-    <button v-on:click="rpc('shutdown')">Shutdown Server</button>
-
-    <span>{{ sim_info}}</span>
+    <br>
+    <div>
+      <button v-on:click="rpc('start_simulation')" v-show="!sim_running">Start Simulation</button>
+      <button v-on:click="rpc('stop_simulation')" v-show="sim_running">Stop Simulation</button>
+      <button v-on:click="rpc('shutdown')">Shutdown Server</button>
+    </div>
     
-    
+    <div>
+      {{ sim_time.years }} years, {{ sim_time.seconds }} seconds
+    </div>
   </div>
 
 <script>
@@ -117,6 +119,26 @@
             }
           }
           return isRunning
+        },
+        sim_time: function() {
+          var time={
+            years: 0,
+            months: 0,
+            days: 0,
+            hours: 0,
+            minutes: 0,
+            seconds: 0
+          }
+          
+          
+          if (this.sim_info) {
+            if (this.sim_info.hasOwnProperty("ts")) {
+              var ts=this.sim_info["ts"].split(":")
+              time.years=ts[0]
+              time.seconds=ts[1]
+            }
+          }
+          return time
         }
       }
       
