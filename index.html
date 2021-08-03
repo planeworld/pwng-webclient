@@ -30,9 +30,11 @@
     <i class="ri-cloud-line" v-show="server.connected"></i>
     <i class="ri-cloud-off-line" v-show="!server.connected"></i>
 
-    <button v-on:click="rpc('start_simulation')">Start Simulation</button>
-    <button v-on:click="rpc('stop_simulation')">Stop Simulation</button>
+    <button v-on:click="rpc('start_simulation')" v-show="!sim_running">Start Simulation</button>
+    <button v-on:click="rpc('stop_simulation')" v-show="sim_running">Stop Simulation</button>
     <button v-on:click="rpc('shutdown')">Shutdown Server</button>
+
+    <span>{{ sim_info}}</span>
     
     
   </div>
@@ -45,15 +47,24 @@
   var ws=null;
   
   function connect() {
-    ws = new WebSocket("ws://localhost:9002");
+    ws = new WebSocket("ws://localhost:9002/?id=1");
   
     ws.onopen = function() {
       console.log("[open] Connection established");
       server.connected=true;
+      rpc_request("sub_server_stats")
     };
 
     ws.onmessage = function(e) {
-      console.log('Message:', e.data);
+      var msg = JSON.parse(e.data);
+      
+      if (msg.method=="sim_stats") {
+        app.sim_info=msg.params
+      } else {
+        console.log('Unknown Message:', e.data);
+      }
+
+      
     };
 
     ws.onclose = function(e) {
@@ -88,14 +99,27 @@
     var app = new Vue({
       el: '#app',
       data: {
-        server: server
+        server: server,
+        sim_info: undefined
       },
       methods: {
         rpc: function(method) {
           console.log(method)
           rpc_request(method)
         },
+      },
+      computed: {
+        sim_running: function() {
+          var isRunning=false;
+          if (this.sim_info) {
+            if (this.sim_info.hasOwnProperty("stat_sim")) {
+              isRunning=this.sim_info["stat_sim"]
+            }
+          }
+          return isRunning
+        }
       }
+      
     })
   
   
