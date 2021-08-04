@@ -30,14 +30,22 @@
     <i class="ri-cloud-line" v-show="server.connected"></i>
     <i class="ri-cloud-off-line" v-show="!server.connected"></i>
     <br>
-    <div>
-      <button v-on:click="rpc('start_simulation')" v-show="!sim_running">Start Simulation</button>
-      <button v-on:click="rpc('stop_simulation')" v-show="sim_running">Stop Simulation</button>
-      <button v-on:click="rpc('shutdown')">Shutdown Server</button>
-    </div>
-    
-    <div>
-      {{ sim_time.years }} years, {{ sim_time.seconds }} seconds
+    <div style="position: relative;">
+      <div >
+        <div>
+          <button v-on:click="rpc('start_simulation')" v-show="!sim_running">Start Simulation</button>
+          <button v-on:click="rpc('stop_simulation')" v-show="sim_running">Stop Simulation</button>
+          <button v-on:click="rpc('shutdown')">Shutdown Server</button>
+        </div>
+        
+        <div>
+          {{ sim_time.years }} years, {{ sim_time.seconds }} seconds
+        </div>
+      </div>
+      
+      <div v-show="!server.connected" style="position: absolute; top: 0; left: 0; width:100%; height:100%; opacity: 0.7;background: #ffffff;">
+      </div>
+      
     </div>
   </div>
 
