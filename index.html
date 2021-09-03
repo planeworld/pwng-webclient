@@ -33,9 +33,9 @@
     <div style="position: relative;">
       <div >
         <div>
-          <button v-on:click="rpc('start_simulation')" v-show="!sim_running">Start Simulation</button>
-          <button v-on:click="rpc('stop_simulation')" v-show="sim_running">Stop Simulation</button>
-          <button v-on:click="rpc('shutdown')">Shutdown Server</button>
+          <button v-on:click="rpc('cmd_start_simulation')" v-show="!sim_running">Start Simulation</button>
+          <button v-on:click="rpc('cmd_stop_simulation')" v-show="sim_running">Stop Simulation</button>
+          <button v-on:click="rpc('cmd_shutdown')">Shutdown Server</button>
         </div>
         
         <div>
@@ -57,17 +57,17 @@
   var ws=null;
   
   function connect() {
-    ws = new WebSocket("ws://localhost:9002/?id=1");
+    ws = new WebSocket("ws://localhost:9002");
   
     ws.onopen = function() {
       console.log("[open] Connection established");
       server.connected=true;
-      rpc_request("sub_server_stats")
+      rpc_request("sub_sim_stats")
     };
 
     ws.onmessage = function(e) {
       var msg = JSON.parse(e.data);
-      
+      console.log(e.data)
       if (msg.method=="sim_stats") {
         app.sim_info=msg.params
       } else {
@@ -100,7 +100,9 @@
       method: method, 
       params: [],
       id: 1}
-      
+    
+    console.log("Make RPC call:")
+    console.log(data)
     ws.send(JSON.stringify(data))
   
   }
