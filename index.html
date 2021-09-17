@@ -51,6 +51,7 @@
           <div>
             {{ sim_time.years }} years, {{ sim_time.seconds }} seconds
           </div>
+          <input type="range" min="-1" max="6" step="0.1" v-model.number="acceleration" @change="setAcceleration">
         </div>
         
         <div v-show="!server.connected" style="position: absolute; top: 0; left: 0; width:100%; height:100%; opacity: 0.7;background: #ffffff;">
@@ -78,7 +79,7 @@
 
     ws.onmessage = function(e) {
       var msg = JSON.parse(e.data);
-      console.log(e.data)
+//       console.log(e.data)
       if (msg.method=="sim_stats") {
         app.sim_info=msg.params
       } else {
@@ -104,11 +105,11 @@
 
 
   
-  var rpc_request = function(method) {
+  var rpc_request = function(method, params) {
     data = {
       jsonrpc: "2.0",
       method: method, 
-      params: [],
+      params: params,
       id: 1}
     
     console.log("Make RPC call:")
@@ -131,6 +132,7 @@
           sim_info: undefined,
           serverconfig: serverconfig,
           configured: false,
+          acceleration: 0.0
         }
       },
       methods: {
@@ -139,10 +141,14 @@
           connect(this.serverconfig)
           localStorage.setItem("ServerConfig", this.serverconfig)
         },
-        rpc: function(method) {
-          console.log(method)
-          rpc_request(method)
+        rpc: function(method, data) {
+          console.log(method, data)
+          rpc_request(method,data)
         },
+        setAcceleration: function() {
+          console.log(this.acceleration)
+          this.rpc("cmd_accelerate_simulation", [Math.pow(10, this.acceleration)])
+        }
       },
       computed: {
         sim_running: function() {
